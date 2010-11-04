@@ -268,6 +268,15 @@ void ProcessIO(void)
 				if(ProgrammedPointer == (unsigned short long)InvalidAddress)
 					ProgrammedPointer = PacketFromPC.Address;
 				
+				// self-preservation code!
+				if ((ProgrammedPointer < ProgramMemStart) || ((ProgrammedPointer - BufferedDataIndex) < ProgramMemStart) || ((ProgrammedPointer - BufferedDataIndex) > ProgramMemStopAddress)) {
+					// host just tried to write to the bootloader, or overwrite the config words without unlocking first.
+					// block the request.
+					ProgrammedPointer = InvalidAddress;
+					BootState = Idle;
+					break;
+				}
+
 				if(ProgrammedPointer == (unsigned short long)PacketFromPC.Address)
 				{
 					for(i = 0; i < PacketFromPC.Size; i++)
@@ -287,6 +296,14 @@ void ProcessIO(void)
 				break;
 			case PROGRAM_COMPLETE:
 			{
+				// self-preservation code!
+				if ((ProgrammedPointer < ProgramMemStart) || (ProgrammedPointer > ProgramMemStopAddress) || ((ProgrammedPointer + PacketFromPC.Size) > ProgramMemStopAddress)) {
+					// host just tried to write to the bootloader, or overwrite the config words without unlocking first.
+					// block the request.
+					BootState = Idle;
+					break;
+				}
+
 				WriteFlashSubBlock();
 				ProgrammedPointer = InvalidAddress;		//Reinitialize pointer to an invalid range, so we know the next PROGRAM_DEVICE will be the start address of a contiguous section.
 				BootState = Idle;
