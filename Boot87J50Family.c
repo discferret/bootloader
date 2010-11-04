@@ -304,6 +304,13 @@ void ProcessIO(void)
 					break;
 				}
 
+				// Make sure programming buffer contains a multiple of WORDSIZE bytes of data
+				while ((BufferedDataIndex % WORDSIZE) != 0) {
+					ProgrammingBuffer[BufferedDataIndex] = 0xFF;
+					BufferedDataIndex++;
+					ProgrammedPointer++;
+				}
+
 				WriteFlashSubBlock();
 				ProgrammedPointer = InvalidAddress;		//Reinitialize pointer to an invalid range, so we know the next PROGRAM_DEVICE will be the start address of a contiguous section.
 				BootState = Idle;
