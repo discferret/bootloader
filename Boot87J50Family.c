@@ -269,7 +269,7 @@ void ProcessIO(void)
 					ProgrammedPointer = PacketFromPC.Address;
 				
 				// self-preservation code!
-				if ((ProgrammedPointer < ProgramMemStart) || ((ProgrammedPointer - BufferedDataIndex) < ProgramMemStart) || ((ProgrammedPointer - BufferedDataIndex) > ProgramMemStopAddress)) {
+				if ((ProgrammedPointer < ProgramMemStart) || ((ProgrammedPointer - BufferedDataIndex) < ProgramMemStart) || (ProgrammedPointer > ProgramMemStopAddress)) {
 					// host just tried to write to the bootloader, or overwrite the config words without unlocking first.
 					// block the request.
 					ProgrammedPointer = InvalidAddress;
@@ -297,9 +297,10 @@ void ProcessIO(void)
 			case PROGRAM_COMPLETE:
 			{
 				// self-preservation code!
-				if ((ProgrammedPointer < ProgramMemStart) || (ProgrammedPointer > ProgramMemStopAddress) || ((ProgrammedPointer + PacketFromPC.Size) > ProgramMemStopAddress)) {
+				if ((ProgrammedPointer < ProgramMemStart) || ((ProgrammedPointer - BufferedDataIndex) < ProgramMemStart) || (ProgrammedPointer > ProgramMemStopAddress)) {
 					// host just tried to write to the bootloader, or overwrite the config words without unlocking first.
 					// block the request.
+					ProgrammedPointer = InvalidAddress;
 					BootState = Idle;
 					break;
 				}
