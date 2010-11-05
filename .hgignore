@@ -3,3 +3,6 @@ syntax: glob
 *.hex
 *.err
 *.cof
+*.orig
+*.map
+*.mcs
