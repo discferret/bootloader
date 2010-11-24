@@ -475,7 +475,7 @@ void BlinkUSBStatus(void)
     led_count--;
 
 	 if(usb_device_state < CONFIGURED_STATE)
-		mLED_1_On();
+		mLED_1_Off();
 	 if(usb_device_state == CONFIGURED_STATE)
         {
             if(led_count==0)
