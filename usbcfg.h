@@ -62,8 +62,7 @@
    	//#define USE_USB_BUS_SENSE_IO		//(DS51679) for more details about these features.
 
 #elif defined(DISCFERRET)
-	//#define USE_SELF_POWER_SENSE_IO	//See MCHPFSUSB Firmware User's Guide
-   	//#define USE_USB_BUS_SENSE_IO		//(DS51679) for more details about these features.
+	#define USE_USB_BUS_SENSE_IO
 
 #else
     #error Not a supported board (yet), See __FILE__, line __LINE__, or double click on this text.

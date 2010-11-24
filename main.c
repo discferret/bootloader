@@ -343,16 +343,6 @@ static void InitializeSystem(void)
 		//to suppress the error message.
     #endif
 
-	#if defined(PLATFORM_DISCFERRET)
-		//Configure all I/O pins to use digital input buffers.  The PIC18F87J50 Family devices
-		//use the ANCONx registers to control this, which is different from other devices which
-		//use the ADCON1 register for this purpose.
-	    WDTCONbits.ADSHR = 1;			// Select alternate SFR location to access ANCONx registers
-	    ANCON0 = 0xFF;                  // Default all pins to digital
-	    ANCON1 = 0xFF;                  // Default all pins to digital
-	    WDTCONbits.ADSHR = 0;			// Select normal SFR locations
-    #endif
-
 	//USB module may have already been on if the application firmware calls the bootloader
 	//without first disabling the USB module.  If this happens, need
 	//to temporarily soft-detach from the host, wait a delay (allows cable capacitance
@@ -411,12 +401,23 @@ static void InitializeSystem(void)
 	led_count = 0;			//Initialize variable used to toggle LEDs
     mInitAllLEDs();			//Init them off.
 
-	//Turn off digital input buffers on analog pins to minimize power consumption
-	//if the I/O pins happen to be floating in the target application.
-	WDTCONbits.ADSHR = 1;	//ANCON registers in shared address space region
-	ANCON0 = 0x00;			//All analog, to disable the digital input buffers
-	ANCON1 = 0x00;			//All analog, digital input buffers off
-	WDTCONbits.ADSHR = 0;
+	#if defined(DISCFERRET)
+		//Configure all I/O pins to use digital input buffers.  The PIC18F87J50 Family devices
+		//use the ANCONx registers to control this, which is different from other devices which
+		//use the ADCON1 register for this purpose.
+	    WDTCONbits.ADSHR = 1;	// Select alternate SFR location to access ANCONx registers
+	    ANCON0 = 0xFF;			// Default all pins to digital
+	    ANCON1 = 0xFF;			// Default all pins to digital
+	    WDTCONbits.ADSHR = 0;	// Select normal SFR locations
+	#else
+		//Turn off digital input buffers on analog pins to minimize power consumption
+		//if the I/O pins happen to be floating in the target application.
+		WDTCONbits.ADSHR = 1;	// ANCON registers in shared address space region
+		ANCON0 = 0x00;			// All analog, to disable the digital input buffers
+		ANCON1 = 0x00;			// All analog, digital input buffers off
+		WDTCONbits.ADSHR = 0;
+    #endif
+
 	//Also to minimize sleep current consumption (sleep used in this bootloader
 	//firmware during USB Suspend conditions), use REGSLP feature
 	WDTCONbits.REGSLP = 1;
